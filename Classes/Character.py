@@ -33,11 +33,18 @@ class Character:
         self.facing_left = True
         self.prev_anim = "none"
         self.anim = "none"
+
+        self.anim_attack = "ground_special"
+
         self.frame_t = 0
         self.current_frame = 0
 
+        self.att_frame_t = 0
+        self.att_current_frame = 0
+
         #States
         self.landing = False
+        self.was_attacking = False
         self.attacking = False
         self.attacked = False
         self.launched = False
@@ -53,7 +60,6 @@ class Character:
 
 
     def load_attacks(self):
-        
         self.attack_rects = self.attackinfo[0]
         self.attack_times = self.attackinfo[1]
         self.attack_damages = self.attackinfo[2]
@@ -93,7 +99,7 @@ class Character:
 
 
     def anim_n_attack(self):
-        match self.anim:
+        match self.anim_attack:
             
             case "ground_special":
                 return 0
@@ -151,11 +157,15 @@ class Character:
 
 
     def get_frame_attack(self):        
-        if self.frame_t > self.attack_times[self.anim_n_attack][self.current_frame]:
-            self.frame_t = 0
-            self.current_frame += 1
-            if self.current_frame > self.attack_sprites_steps[self.anim_n_attack]:
+        
+        print(self.anim_n_attack(), self.att_current_frame)
+
+        if self.att_frame_t > self.attack_times[self.anim_n_attack()][self.att_current_frame]:
+            self.att_frame_t = 0
+            self.att_current_frame += 1
+            if self.att_current_frame >= self.attack_sprites_steps[self.anim_n_attack()]:
                 self.attacking = False
+                self.att_current_frame = 0
                 self.animate()
 
 
@@ -194,22 +204,18 @@ class Character:
     def get_state_attack(self):
         
         on_ground = not self.falling
-
+        
         if self.attack2 and on_ground:
-            self.prev_anim = self.anim
-            self.anim = "ground_special"
+            self.anim_attack = "ground_special"
 
         elif self.attack1 and on_ground:
-            self.prev_anim = self.anim
-            self.anim = "ground_quick"
+            self.anim_attack = "ground_quick"
         
         elif self.attack2 and self.falling:
-            self.prev_anim = self.anim
-            self.anim = "air_special"
+            self.anim_attack = "air_special"
 
         else:
-            self.prev_anim = self.anim
-            self.anim = "air_quick"
+            self.anim_attack = "air_quick"
 
         if self.left:
             self.facing_left = True
@@ -218,12 +224,13 @@ class Character:
 
 
     def animate(self):
-        self.frame_t += 1
-
         if self.attacking:
-            self.get_state_attack()
+            self.att_frame_t += 1
+            if not self.was_attacking:
+                self.get_state_attack()
             self.get_frame_attack()
         else:
+            self.frame_t += 1
             self.get_state_mvmt()
             self.get_frame_mvmt()
 
@@ -295,10 +302,13 @@ class Character:
 
 
     def change_velocity(self):
+        
+        self.was_attacking = self.attacking
 
-        if self.attack1 or self.attack2:
+        if (self.attack1 or self.attack2) and not self.attacking:
             self.attacking = True
-        else:
+
+        if not self.attacking:
             #HORIZONTAL MOUVEMENT
             if self.left:
                 if self.vx > 0: self.vx = -TURNSPEED*self.vx
@@ -320,17 +330,17 @@ class Character:
                 self.falling = True
             if self.vy < 0 and self.up:
                 self.vy -= JUMP_CONTROL
-            self.vy += GRAVITY
+        self.vy += GRAVITY
 
-            #LIMITS
-            if self.vx > MAXSPEED:
-                self.vx = MAXSPEED
-            if self.vx < -MAXSPEED:
-                self.vx = -MAXSPEED
-            if abs(self.vx) < MINSPEED:
-                self.vx = 0
-            if self.vy > TERMINAL_VELOCITY:
-                self.vy = TERMINAL_VELOCITY
+        #LIMITS
+        if self.vx > MAXSPEED:
+            self.vx = MAXSPEED
+        if self.vx < -MAXSPEED:
+            self.vx = -MAXSPEED
+        if abs(self.vx) < MINSPEED:
+            self.vx = 0
+        if self.vy > TERMINAL_VELOCITY:
+            self.vy = TERMINAL_VELOCITY
 
 
     def collision(self, platforms):
@@ -363,6 +373,6 @@ class Character:
 
     def draw(self):
         if self.attacking:
-            self.surface.blit(self.attack_sprites.get_frame(self.current_frame, self.anim_n_attack(), self.facing_left), (self.rect.x - self.attack_offsets[self.anim_n_attack()][self.current_frame][0][self.facing_left], self.rect.y - self.attack_offsets[self.anim_n_attack()][self.current_frame][1]))
+            self.surface.blit(self.attack_sprites.get_frame(self.att_current_frame, self.anim_n_attack(), self.facing_left), (self.rect.x - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][0][self.facing_left], self.rect.y - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][1]))
         else:
             self.surface.blit(self.mvmt_sprites.get_frame(self.current_frame, self.anim_n_mvmt(), self.facing_left), (self.rect.x - self.mvmt_offset[0], self.rect.y - self.mvmt_offset[1]))

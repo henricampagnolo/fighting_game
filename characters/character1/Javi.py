@@ -26,20 +26,26 @@ class Javi(Character):
 
     def set_up_attacks(self):
         
-        rects_attack = [[[pygame.Rect(168, 624, 288, 528)], []
-        ,[pygame.Rect(168, 624, 288, 528)], []
-        ,[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(504, 816, 120, 144)]
-        ,[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(624, 768, 120, 264),pygame.Rect(744, 792, 48, 216),pygame.Rect(528, 792, 96, 216)]
-        ,[pygame.Rect(240, 624, 288, 528)], [pygame.Rect(672, 744, 192, 312),pygame.Rect(864, 768, 48, 264),pygame.Rect(912, 840, 24, 120),pygame.Rect(600, 768, 72, 264)]
-        ,[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(696, 744, 168, 240)]
-        ,[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(720, 888, 96, 72)]
-        ]]
+        rects_attack = [[[[pygame.Rect(168, 624, 288, 528)], []]
+        ,[[pygame.Rect(168, 624, 288, 528)], []]
+        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(504, 816, 120, 144)]]
+        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(624, 768, 120, 264),pygame.Rect(744, 792, 48, 216),pygame.Rect(528, 792, 96, 216)]]
+        ,[[pygame.Rect(240, 624, 288, 528)], [pygame.Rect(672, 744, 192, 312),pygame.Rect(864, 768, 48, 264),pygame.Rect(912, 840, 24, 120),pygame.Rect(600, 768, 72, 264)]]
+        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(696, 744, 168, 240)]]
+        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(720, 888, 96, 72)]]
+        ],
+        
+        [],
+        
+        [],
+        
+        []]
 
-        attack_time = [[10, 10, 10, 10, 10, 10, 10]]
+        attack_time = [[10, 10, 10, 10, 10, 10, 10], [], [], []]
 
-        attack_damage = [30]
+        attack_damage = [30, 0, 0, 0]
 
-        knockback_effect = [(10, 0)]
+        knockback_effect = [(10, 0), (0, 0), (0, 0), (0, 0)]
 
         return [rects_attack, attack_time, attack_damage, knockback_effect]
 '''

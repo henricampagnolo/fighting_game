@@ -28,7 +28,7 @@ class FightingFoo:
 
         self.bg_image, self.platforms = level_select(1)
 
-        print(self.platforms)
+        #print(self.platforms)
 
         #self.bg_image = pygame.image.load(os.path.join('stages/level1', "bg.bmp")) self.platforms = [pygame.Rect(66*6, 87*6, 64*6, 16*6), pygame.Rect(178*6, 87*6, 64*6, 16*6), pygame.Rect(42*6, 127*6, 224*6, 16*6), pygame.Rect(106*6, 143*6, 96*6, 16*6)]
 

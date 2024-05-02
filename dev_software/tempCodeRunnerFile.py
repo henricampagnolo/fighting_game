@@ -1,1 +1,1 @@
-Spritemap
+SCALE_UP

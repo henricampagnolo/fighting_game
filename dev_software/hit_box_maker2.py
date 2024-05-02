@@ -79,7 +79,7 @@ def grid_txt(grid):
     for line in grid:
         string = string + "["
         for frame in line:
-            string = string + "["
+            string = string + "[["
             for rect in frame[0]:
                 string = string + f"pygame.Rect({rect.left}, {rect.top}, {rect.width}, {rect.height}),"
             if string[-1] == ",": string = string[0:-1]
@@ -87,7 +87,7 @@ def grid_txt(grid):
             for rect in frame[1]:
                 string = string + f"pygame.Rect({rect.left}, {rect.top}, {rect.width}, {rect.height}),"
             if string[-1] == ",": string = string[0:-1]
-            string = string + "]\n,"
+            string = string + "]]\n,"
         if string[-1] == ",": string = string[0:-1]
         string = string + "]\n\n\n,"
     if string[-1] == ",": string = string[0:-1]
