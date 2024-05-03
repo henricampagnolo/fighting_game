@@ -1,5 +1,6 @@
 from settings import *
 import pygame
+import math
 
 def level_select(n):
     rects = []
@@ -58,6 +59,8 @@ def rectangle_collision(rect1: pygame.Rect, rect2: pygame.Rect, vx1, vy1, vx2, v
             rect2.top = side_pos
     return i
 
+def len_vec(x, y):
+    return math.sqrt(x**2 + y**2)
 #r1, r2 = pygame.Rect(2, 1, 4, 2), pygame.Rect(4, 2, 3, 4)
 #r1, r2 = pygame.Rect(6, 0, 4, 4), pygame.Rect(7, 2, 5, 2)
 

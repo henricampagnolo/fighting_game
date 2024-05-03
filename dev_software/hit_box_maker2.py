@@ -74,6 +74,9 @@ index_y = 0
 frames = 0
 mode = 0
 
+def scale_down(n):
+    return int(n/SCALE_UP)
+
 def grid_txt(grid):
     string = "["
     for line in grid:
@@ -81,11 +84,11 @@ def grid_txt(grid):
         for frame in line:
             string = string + "[["
             for rect in frame[0]:
-                string = string + f"pygame.Rect({rect.left}, {rect.top}, {rect.width}, {rect.height}),"
+                string = string + f"pygame.Rect({scale_down(rect.left)}, {scale_down(rect.top)}, {scale_down(rect.width)}, {scale_down(rect.height)}),"
             if string[-1] == ",": string = string[0:-1]
             string = string + "], ["
             for rect in frame[1]:
-                string = string + f"pygame.Rect({rect.left}, {rect.top}, {rect.width}, {rect.height}),"
+                string = string + f"pygame.Rect({scale_down(rect.left)}, {scale_down(rect.top)}, {scale_down(rect.width)}, {scale_down(rect.height)}),"
             if string[-1] == ",": string = string[0:-1]
             string = string + "]]\n,"
         if string[-1] == ",": string = string[0:-1]

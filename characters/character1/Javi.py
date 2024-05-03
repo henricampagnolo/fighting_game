@@ -12,7 +12,7 @@ class Javi(Character):
         #mvmt
         raw_img_mvmt = pygame.image.load("characters\character1\javi_sprites.png").convert_alpha()
         mvmtsprites = Spritemap(surface, raw_img_mvmt, 144, 144)
-        mvmtsprites_steps = [2, 7, 10, 3, 1, 3]
+        mvmtsprites_steps = [2, 7, 10, 3, 1, 3, 4]
 
         #attack (this is temporary)
         raw_img_attack = pygame.image.load("characters\character1\javi_attack_sprites.png").convert_alpha()
@@ -26,20 +26,18 @@ class Javi(Character):
 
     def set_up_attacks(self):
         
-        rects_attack = [[[[pygame.Rect(168, 624, 288, 528)], []]
-        ,[[pygame.Rect(168, 624, 288, 528)], []]
-        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(504, 816, 120, 144)]]
-        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(624, 768, 120, 264),pygame.Rect(744, 792, 48, 216),pygame.Rect(528, 792, 96, 216)]]
-        ,[[pygame.Rect(240, 624, 288, 528)], [pygame.Rect(672, 744, 192, 312),pygame.Rect(864, 768, 48, 264),pygame.Rect(912, 840, 24, 120),pygame.Rect(600, 768, 72, 264)]]
-        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(696, 744, 168, 240)]]
-        ,[[pygame.Rect(192, 624, 288, 528)], [pygame.Rect(720, 888, 96, 72)]]
+        rects_attack = [[[[pygame.Rect(48, 156, 72, 132)], []]
+        ,[[pygame.Rect(42, 156, 72, 132)], []]
+        ,[[pygame.Rect(48, 156, 72, 132)], [pygame.Rect(126, 204, 30, 36)]]
+        ,[[pygame.Rect(48, 156, 72, 132)], [pygame.Rect(186, 198, 12, 54),pygame.Rect(156, 192, 30, 66),pygame.Rect(138, 198, 18, 54)]]
+        ,[[pygame.Rect(54, 156, 72, 132)], [pygame.Rect(222, 198, 12, 54),pygame.Rect(168, 186, 54, 78),pygame.Rect(144, 192, 24, 66)]]
+        ,[[pygame.Rect(48, 156, 72, 132)], [pygame.Rect(174, 192, 42, 48)]]
+        ,[[pygame.Rect(48, 156, 72, 132)], [pygame.Rect(180, 216, 24, 24)]]
         ],
-        
         [],
-        
         [],
-        
-        []]
+        []
+        ]
 
         attack_time = [[10, 10, 10, 10, 10, 10, 10], [], [], []]
 

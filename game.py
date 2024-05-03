@@ -93,7 +93,7 @@ class FightingFoo:
 
     def game_logic(self):
         for player in self.players:
-            player.update(self.platforms)
+            player.update(self.platforms, self.players)
 
 
     def find_zoom_rect(self):
