@@ -39,7 +39,7 @@ SELECTOR_WIDTH = 3
 #IMG = pygame.image.load("characters/character1/img.png")
 IMG = pygame.image.load("characters\character1\javi_attack_sprites.png")
 
-w, h = 7, 1
+w, h = 7, 2
 
 grid = [[[[], []] for j in range(w)] for i in range(h)]
 

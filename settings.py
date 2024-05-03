@@ -16,15 +16,24 @@ VELOCITY_FOR_LANDING = 20 # falling faster than this causes a landing animation
 LANDING_COMPENSATE = 1.7 # higher make the last frames of the landing last longer
 
 NUMBER_OF_ATTACKS  = 4
-DESACCELERATION_DURING_SPEACIAL = 0.96
 
 KNOCK_BACK_SCALE = 100 # higher is weaker
 LAUNCHED = 20 # min velocity to be launched
-LAUNCHED_BOUNCINESS = 0.9
-INVICIBILITY_FRAMES = 20
+LAUNCHED_BOUNCINESS = 0.7
+LAUNCHED_SPEED_LOSS_AIR = 0.985
+LAUNCHED_SPEED_LOSS_GROUND = 0.98
+INVICIBILITY_FRAMES = 40
 LAUNCHED_ANIM_SPEED = 10
 
+#Damage counter
+DC_SCALE = 1
+DC_BORDER = 30
+DC_BAR_VAL = 60
+DC_BARS = 5
+
 #Movement 
+N_JUMPS = 3
+JUMP_COOLDOWN = 25
 TURNSPEED = 0.5 #higher is faster (<1)
 BOUNCINESS = 0 #higher is more (<1)
 GRAVITY = 2 # higher is stronger

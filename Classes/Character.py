@@ -2,6 +2,7 @@ import pygame
 import math
 from settings import *
 from extra_functions import rectangle_collision, len_vec
+from Classes.Spritemap import Spritemap
 #from math import *
 
 class Character:
@@ -16,7 +17,12 @@ class Character:
         self.surface = surface
         self.controls = controls
         self.rect = pygame.Rect(x, y, width, height)
+        self.jumps_left = N_JUMPS
+        self.jump_cooldown = 0
+        
+        #damage meter
         self.damage = 0
+        self.health_bars = Spritemap(surface, pygame.image.load("assets\health_bars.png").convert_alpha(), 192, 96)
         
         #Sprite_sheets
         self.mvmt_sprites = mvmtsprites
@@ -67,6 +73,8 @@ class Character:
         self.attack_times = self.attackinfo[1]
         self.attack_damages = self.attackinfo[2]
         self.knockback_effects = self.attackinfo[3]
+        self.attack_hold = self.attackinfo[4]
+        self.attack_desacellaretations = self.attackinfo[5]
         
         self.attack_frame_width = self.attack_sprites.frame_width
         self.attack_frame_height = self.attack_sprites.frame_height
@@ -171,7 +179,7 @@ class Character:
         
         #print(self.anim_n_attack(), self.att_current_frame)
 
-        if self.att_frame_t > self.attack_times[self.anim_n_attack()][self.att_current_frame]:
+        if self.att_frame_t > self.attack_times[self.anim_n_attack()][self.att_current_frame] + (self.attack_hold[self.anim_n_attack()][0] == self.att_current_frame and self.chosen_attack == self.anim_attack)*self.attack_hold[self.anim_n_attack()][1]:
             self.att_frame_t = 0
             self.att_current_frame += 1
             if self.att_current_frame >= self.attack_sprites_steps[self.anim_n_attack()]:
@@ -217,28 +225,29 @@ class Character:
         on_ground = not self.falling
         
         if self.attack2 and on_ground:
-            self.anim_attack = "ground_special"
+            self.chosen_attack = "ground_special"
 
         elif self.attack1 and on_ground:
-            self.anim_attack = "ground_quick"
+            self.chosen_attack = "ground_quick"
         
         elif self.attack2 and self.falling:
-            self.anim_attack = "air_special"
+            self.chosen_attack = "air_special"
 
         else:
-            self.anim_attack = "air_quick"
+            self.chosen_attack = "air_quick"
 
-        if self.left:
-            self.facing_left = True
-        if self.right:
-            self.facing_left = False
+        if not self.was_attacking:
+            if self.left:
+                self.facing_left = True
+            if self.right:
+                self.facing_left = False
+            self.anim_attack = self.chosen_attack
 
 
     def animate(self):
         if self.attacking:
             self.att_frame_t += 1
-            if not self.was_attacking:
-                self.get_state_attack()
+            self.get_state_attack()
             self.get_frame_attack()
             if self.attacking:
                 self.attack_coll()
@@ -252,37 +261,6 @@ class Character:
         keys=pygame.key.get_pressed()
 
         if self.controls == 1:
-            if keys[pygame.K_LEFT]:
-                self.left = True
-            else:
-                self.left = False
-
-            if keys[pygame.K_RIGHT]:
-                self.right = True
-            else:
-                self.right = False
-
-            if keys[pygame.K_UP]:
-                self.up = True
-            else:
-                self.up = False
-            
-            if keys[pygame.K_DOWN]:
-                self.down = True
-            else:
-                self.down = False
-
-            if keys[pygame.K_COLON]:
-                self.attack1 = True
-            else:
-                self.attack1 = False
-
-            if keys[pygame.K_COMMA]:
-                self.attack2 = True
-            else:
-                self.attack2 = False
-
-        if self.controls == 2:
             if keys[pygame.K_a]:
                 self.left = True
             else:
@@ -313,19 +291,57 @@ class Character:
             else:
                 self.attack2 = False
 
+        if self.controls == 2:
+            if keys[pygame.K_LEFT]:
+                self.left = True
+            else:
+                self.left = False
+
+            if keys[pygame.K_RIGHT]:
+                self.right = True
+            else:
+                self.right = False
+
+            if keys[pygame.K_UP]:
+                self.up = True
+            else:
+                self.up = False
+            
+            if keys[pygame.K_DOWN]:
+                self.down = True
+            else:
+                self.down = False
+
+            if keys[pygame.K_PERIOD]:
+                self.attack1 = True
+            else:
+                self.attack1 = False
+
+            if keys[pygame.K_COMMA]:
+                self.attack2 = True
+            else:
+                self.attack2 = False
+
 
     def change_velocity(self):
         
-        self.was_attacking = self.attacking\
+        self.was_attacking = self.attacking
         
+        if self.launched and not self.falling:
+            self.vx *= LAUNCHED_SPEED_LOSS_GROUND
+            self.vy *= LAUNCHED_SPEED_LOSS_GROUND
+        elif self.launched:
+            self.vx *= LAUNCHED_SPEED_LOSS_AIR
+            self.vy *= LAUNCHED_SPEED_LOSS_AIR
+
+        if self.jump_cooldown:
+            self.jump_cooldown -= 1
+
         if self.attacked and self.invicible_frames < INVICIBILITY_FRAMES:
             self.invicible_frames += 1
         else:
             self.invicible_frames = 0
             self.attacked = False
-
-        if len_vec(self.vx, self.vy) < LAUNCHED:
-            self.launched = False
 
         if ((self.attack1 or self.attack2) and not self.attacking) and not self.launched:
             self.attacking = True
@@ -347,20 +363,17 @@ class Character:
                     self.vx *= DESACCELERATION
             
             #JUMPING
-            if self.up and not self.falling:
-                self.vy -= JUMP_ACCELERATION
-                self.falling = True
-            if self.vy < 0 and self.up:
-                self.vy -= JUMP_CONTROL
-        
+        if self.up and self.jumps_left > 0 and self.jump_cooldown == 0 and len_vec(self.vx, self.vy) < LAUNCHED:
+            self.launched = False
+            self.vy =- JUMP_ACCELERATION
+            self.falling = True
+            self.jumps_left -= 1
+            self.jump_cooldown = JUMP_COOLDOWN
+        if self.vy < 0 and self.up and len_vec(self.vx, self.vy) < LAUNCHED:
+            self.vy -= JUMP_CONTROL
+    
         elif self.attacking and not self.launched:
-            if not self.left:
-                if self.vx < 0:
-                    self.vx *= DESACCELERATION_DURING_SPEACIAL
-
-            if not self.right:
-                if self.vx > 0:
-                    self.vx *= DESACCELERATION_DURING_SPEACIAL
+            self.vx *= self.attack_desacellaretations[self.anim_n_attack()]
 
         self.vy += GRAVITY
 
@@ -384,6 +397,7 @@ class Character:
                 if self.launched:
                     if side == 1 or side == 3:
                         self.falling = False
+                        self.jumps_left = N_JUMPS
                         self.vy *= -LAUNCHED_BOUNCINESS
                     else:
                         self.vx *= -LAUNCHED_BOUNCINESS
@@ -393,6 +407,7 @@ class Character:
                         #print("landed")
                     if side == 1 or side == 3:
                         self.falling = False
+                        self.jumps_left = N_JUMPS
                         self.vy = 0
                     else:
                         self.vx = 0
@@ -406,10 +421,10 @@ class Character:
 
         for player in self.players:
             if player != self:
-                print("new_attack")
+                #print("new_attack")
                 for rect in self.attack_rects[n_att][n_frame][1]:
                     rect = rect.move(att_offset[0] + (self.attack_frame_width - 2*rect.x)*(self.facing_left), att_offset[1])
-                    print(rect, player.rect)
+                    #print(rect, player.rect)
                     if rect.colliderect(player.rect) and not player.attacked:
                         player.is_attacked(self.attack_damages[n_att], self.knockback_effects[n_att], self.facing_left)
 
@@ -419,8 +434,8 @@ class Character:
         self.damage += dam
         self.attacked = True
         self.attacking = False
-        self.vx += int(knockback[0]*(self.damage/KNOCK_BACK_SCALE)) 
-        self.vy += int(knockback[1]*(dam/KNOCK_BACK_SCALE))
+        self.vx += int(knockback[0]*(self.damage/KNOCK_BACK_SCALE))*((not direc)*2 - 1)
+        self.vy += int(knockback[1]*(self.damage/KNOCK_BACK_SCALE))*((not direc)*2 - 1)
         if len_vec(self.vx, self.vy) > LAUNCHED:
             self.launched = True
 
@@ -445,3 +460,21 @@ class Character:
             self.surface.blit(self.attack_sprites.get_frame(self.att_current_frame, self.anim_n_attack(), self.facing_left), (self.rect.x - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][0][self.facing_left], self.rect.y - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][1]))
         else:
             self.surface.blit(self.mvmt_sprites.get_frame(self.current_frame, self.anim_n_mvmt(), self.facing_left), (self.rect.x - self.mvmt_offset[0], self.rect.y - self.mvmt_offset[1]))
+    
+
+    def draw_health(self, resized_screen):
+        prop = resized_screen.get_width()/self.surface.get_width()
+        frame = pygame.transform.scale_by(self.health_bars.get_frame(0, min(DC_BARS, math.floor(self.damage/DC_BAR_VAL)), False), prop)
+        fw = frame.get_width()
+        fh = frame.get_width()
+        sw = resized_screen.get_width()
+        sh = resized_screen.get_height()
+        border = DC_BORDER * prop
+        if self.controls == 1:
+            resized_screen.blit(frame, (border, border))
+        if self.controls == 2:
+            resized_screen.blit(frame, (sw - fw - border, border))
+        if self.controls == 3:
+            resized_screen.blit(frame, (border, sh - fh - border))
+        if self.controls == 4:
+            resized_screen.blit(frame, (sw - fw -  border, sh - fh - border))

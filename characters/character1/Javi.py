@@ -34,18 +34,26 @@ class Javi(Character):
         ,[[pygame.Rect(48, 156, 72, 132)], [pygame.Rect(174, 192, 42, 48)]]
         ,[[pygame.Rect(48, 156, 72, 132)], [pygame.Rect(180, 216, 24, 24)]]
         ],
-        [],
+        [[[pygame.Rect(48, 156, 72, 132)], []]
+        ,[[pygame.Rect(60, 156, 72, 132)], [pygame.Rect(156, 210, 12, 42)]]
+        ,[[pygame.Rect(66, 156, 72, 132)], [pygame.Rect(156, 198, 36, 42)]]
+        ,[[pygame.Rect(54, 156, 72, 132)], []]],
         [],
         []
         ]
 
-        attack_time = [[10, 10, 10, 10, 10, 10, 10], [], [], []]
+        attack_time = [[12, 12, 5, 5, 15, 8, 10], [4, 4, 8, 4], [], []]
 
-        attack_damage = [30, 0, 0, 0]
+        attack_damage = [50, 15, 0, 0]
 
-        knockback_effect = [(10, 0), (0, 0), (0, 0), (0, 0)]
+        knockback_effect = [(10, 2), (2, 25), (0, 0), (0, 0)]
 
-        return [rects_attack, attack_time, attack_damage, knockback_effect]
+        #This is the frame where is you hold the attack it will charge and not finish immidiatly(comme in a pair with the max time you can charge it for)
+        holding_frame = [(1, 90), (0, 0), (0, 0), (0, 0)]
+
+        attack_desacellaretation = [0.9, 1, 0, 0]
+
+        return [rects_attack, attack_time, attack_damage, knockback_effect, holding_frame, attack_desacellaretation]
 '''
 
     def load_art(self):

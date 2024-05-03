@@ -50,8 +50,8 @@ class FightingFoo:
                                 x = 1000 , y = 200,
                                 controls=2)
         '''
-        self.player1 = Javi(self.render_surf, x = 400, y = 200, controls=1)
-        self.player2 = Javi(self.render_surf, x = 1000, y = 200, controls=2)
+        self.player1 = Javi(self.render_surf, x = 600, y = 200, controls=1)
+        self.player2 = Javi(self.render_surf, x = 1200, y = 200, controls=2)
         '''
         self.temp_platforms = [Platform(pygame.Rect
                                        (CAM_LEFT_BORDER, (RENDER_RES[1] + PLAYER_SIZE[1])/2, 96, 16),
@@ -170,6 +170,9 @@ class FightingFoo:
         zoomed_rect = self.find_zoom_rect()
 
         zoomed_area = self.render_surf.subsurface(zoomed_rect)
+
+        for player in self.players:
+            player.draw_health(zoomed_area)
 
         sw = self.screen.get_width()
         sh = self.screen.get_height()
