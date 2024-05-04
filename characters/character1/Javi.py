@@ -38,22 +38,49 @@ class Javi(Character):
         ,[[pygame.Rect(60, 156, 72, 132)], [pygame.Rect(156, 210, 12, 42)]]
         ,[[pygame.Rect(66, 156, 72, 132)], [pygame.Rect(156, 198, 36, 42)]]
         ,[[pygame.Rect(54, 156, 72, 132)], []]],
-        [],
+
+        [[[pygame.Rect(114, 18, 72, 132)], []]
+        ,[[pygame.Rect(120, 12, 72, 132)], []]
+        ,[[pygame.Rect(132, 24, 72, 132)], []]
+        ,[[pygame.Rect(126, 0, 72, 132)], [pygame.Rect(114, 168, 102, 84)]]
+        ,[[pygame.Rect(126, 24, 72, 132)], [pygame.Rect(108, 162, 108, 36),pygame.Rect(90, 198, 150, 60)]]
+        ,[[pygame.Rect(114, 24, 72, 132)], [pygame.Rect(102, 186, 108, 42),pygame.Rect(108, 228, 60, 18)]]
+        ,[[pygame.Rect(126, 30, 72, 132)], []]
+        ,[[pygame.Rect(120, 24, 72, 132)], []]],
         []
         ]
 
-        attack_time = [[12, 12, 5, 5, 15, 8, 10], [4, 4, 8, 4], [], []]
+        grab_hitboxes = [
+        [],
+        [],
+        [[]
+        ,[]
+        ,[]
+        ,[pygame.Rect(132, 156, 72, 132)]
+        ,[pygame.Rect(132, 156, 72, 132)]
+        ,[pygame.Rect(120, 156, 72, 132)]
+        ,[pygame.Rect(66, 96, 72, 132)]
+        ,[pygame.Rect(30, 30, 72, 132)]
+        ],
+        []
+        ]
 
-        attack_damage = [50, 15, 0, 0]
+        attack_time = [[12, 12, 5, 5, 15, 8, 10], [4, 4, 8, 4], [10, 10, 8, 8, 8, 8, 5, 3], []]
 
-        knockback_effect = [(10, 2), (2, 25), (0, 0), (0, 0)]
+        attack_damage = [50, 15, 40, 0]
+
+        knockback_effect = [(10, 2), (2, -25), (-20, -15), (0, 0)]
 
         #This is the frame where is you hold the attack it will charge and not finish immidiatly(comme in a pair with the max time you can charge it for)
         holding_frame = [(1, 90), (0, 0), (0, 0), (0, 0)]
 
-        attack_desacellaretation = [0.9, 1, 0, 0]
+        attack_desacellaretation = [0.9, 1, 1, 0]
 
-        return [rects_attack, attack_time, attack_damage, knockback_effect, holding_frame, attack_desacellaretation]
+        knockback_self = [(0, 0), (0, 0), (0, -30), (0, 0)]
+
+        attack_gravity = [1, 1, 0, 1]
+
+        return [rects_attack, attack_time, attack_damage, knockback_effect, holding_frame, attack_desacellaretation, knockback_self, attack_gravity, grab_hitboxes]
 '''
 
     def load_art(self):

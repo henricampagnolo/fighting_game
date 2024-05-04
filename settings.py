@@ -6,6 +6,7 @@ FPS = 60
 
 #Player
 PLAYER_SIZE = (96, 144)
+N_LIVES = 3
 
 #JAVI
 RUNNING_ANIM_START = 1 #min speed before animation

@@ -22,45 +22,13 @@ class FightingFoo:
 
         self.clock = pygame.time.Clock()
 
-        #self.platforms = [pygame.Rect(100, 700, 1400, 100), pygame.Rect(200, 500, 300, 50), pygame.Rect(700, 300, 300, 50), pygame.Rect(1300, 400, 200, 300)]
-
-        #self.bg_image = pygame.transform.scale(pygame.image.load('image.png'), self.render_surf.get_size())
-
         self.bg_image, self.platforms = level_select(1)
-
-        #print(self.platforms)
-
-        #self.bg_image = pygame.image.load(os.path.join('stages/level1', "bg.bmp")) self.platforms = [pygame.Rect(66*6, 87*6, 64*6, 16*6), pygame.Rect(178*6, 87*6, 64*6, 16*6), pygame.Rect(42*6, 127*6, 224*6, 16*6), pygame.Rect(106*6, 143*6, 96*6, 16*6)]
 
         self.font = pygame.font.SysFont("Arial" , 20 , bold = True)
 
-        '''
-        self.player1 = Character(PLAYER_SIZE[0], PLAYER_SIZE[1],
-                                pygame.image.load("characters/character1/img.png").convert_alpha(),
-                                self.render_surf,
-                                #x = CAM_LEFT_BORDER + 100 , y = (RENDER_RES[1] - PLAYER_SIZE[1])/2,
-                                x = 500 , y = 200,
-                                controls=1)
+        self.player1 = Javi(self.render_surf, x = 300, y = 200, controls=1)
+        self.player2 = Javi(self.render_surf, x = 1500, y = 200, controls=2)
         
-        
-        self.player2 = Character(PLAYER_SIZE[0], PLAYER_SIZE[1],
-                                pygame.image.load("characters/character1/img.png").convert_alpha(),
-                                self.render_surf,
-                                #x = RENDER_RES[0] - CAM_RIGHT_BORDER - 100, y = (RENDER_RES[1] - PLAYER_SIZE[1])/2,
-                                x = 1000 , y = 200,
-                                controls=2)
-        '''
-        self.player1 = Javi(self.render_surf, x = 600, y = 200, controls=1)
-        self.player2 = Javi(self.render_surf, x = 1200, y = 200, controls=2)
-        '''
-        self.temp_platforms = [Platform(pygame.Rect
-                                       (CAM_LEFT_BORDER, (RENDER_RES[1] + PLAYER_SIZE[1])/2, 96, 16),
-                                       pygame.image.load("assets/spawn_platform.png"),
-                                       (CAM_LEFT_BORDER-24, (RENDER_RES[1] + PLAYER_SIZE[1])/2),
-                                       self.render_surf,
-                                       self.platforms)]
-        '''
-                                       
         self.players = [self.player1, self.player2]
 
 
@@ -145,28 +113,12 @@ class FightingFoo:
 
 
     def draw(self):
-        #Background
-        #self.render_surf.fill((0, 0, 255))
-        #self.resized_bg_image = pygame.transform.scale(self.bg_image, self.screen.get_size())
+
         self.render_surf.blit(self.bg_image, (0, 0))
-
-        #Elements
-        #for platform in self.platforms:
-        #    pygame.draw.rect(self.render_surf, (100, 0, 200), platform)
-
-        #for plat in self.platforms:
-        #    pygame.draw.rect(self.render_surf, (255, 0, 255), plat)
 
         for player in self.players:
             player.draw()
 
-        #self.fps_counter()
-        
-        #pygame.transform.scale2x(self.render_surf, self.render_surf)
-
-        #self.render_surf.scroll(dx=-self.player1.rect.left/2, dy=-self.player1.rect.top/2)
-
-        #zoomed_rect = pygame.Rect(only_pos(self.player1.rect.centerx-RENDER_RES[0]/4), only_pos(self.player1.rect.centery-RENDER_RES[1]/4), MIN_CAM_SIZE[0], MIN_CAM_SIZE[1])
         zoomed_rect = self.find_zoom_rect()
 
         zoomed_area = self.render_surf.subsurface(zoomed_rect)
@@ -178,7 +130,5 @@ class FightingFoo:
         sh = self.screen.get_height()
 
         pygame.transform.scale(zoomed_area, (sw, sh), dest_surface=self.screen)
-        #self.screen.blit(scale_img, (0, 0))
-        #self.screen.blit(scale_img, (-(self.player1.x * propx) - sw, -(self.player1.y*propy) - sh))
 
         pygame.display.flip()

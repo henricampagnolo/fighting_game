@@ -8,8 +8,8 @@ from Classes.Spritemap import Spritemap
 class Character:
 
     def __init__(self, width, height, surface, mvmtsprites, attacksprites, mvmtsprites_steps, attackinfo, x = 0, y = 0, controls = 1, mvmt_rect_offset = (36, 12)):
-        self.x = x
-        self.y = y
+        self.spawn_x = x
+        self.spawn_y = y
         self.vx = 0
         self.vy = 0
         self.w = width
@@ -19,6 +19,7 @@ class Character:
         self.rect = pygame.Rect(x, y, width, height)
         self.jumps_left = N_JUMPS
         self.jump_cooldown = 0
+        self.lives = N_LIVES
         
         #damage meter
         self.damage = 0
@@ -52,6 +53,8 @@ class Character:
         self.invicible_frames = 0
 
         #States
+        self.dead = False
+        self.grabbed = False
         self.landing = False
         self.was_attacking = False
         self.attacking = False
@@ -75,6 +78,11 @@ class Character:
         self.knockback_effects = self.attackinfo[3]
         self.attack_hold = self.attackinfo[4]
         self.attack_desacellaretations = self.attackinfo[5]
+        self.knockback_self = self.attackinfo[6]
+        self.attack_gravity = self.attackinfo[7]
+        self.attack_grabs = self.attackinfo[8]
+
+        self.is_grab = [len(i)> 0 for i in self.attack_grabs]
         
         self.attack_frame_width = self.attack_sprites.frame_width
         self.attack_frame_height = self.attack_sprites.frame_height
@@ -95,7 +103,7 @@ class Character:
             
             case "none":
                 return 0
-            case "idle":
+            case "victory_dance":
                 return 1
             case "running":
                 return 2
@@ -143,7 +151,10 @@ class Character:
                     self.current_frame = self.current_frame % self.mvmt_sprites_steps[0]
 
             case 1:
-                pass
+                if self.frame_t > 8:
+                    self.frame_t = 0
+                    self.current_frame += 1
+                    self.current_frame = self.current_frame % self.mvmt_sprites_steps[1]
 
             case 2:
                 if self.frame_t > (RUNNING_ANIM_SPEED/abs(self.vx)):
@@ -183,6 +194,9 @@ class Character:
             self.att_frame_t = 0
             self.att_current_frame += 1
             if self.att_current_frame >= self.attack_sprites_steps[self.anim_n_attack()]:
+                for player in self.players:
+                    if player != self and player.grabbed:
+                        player.grabbed = False
                 self.attacking = False
                 self.att_current_frame = 0
                 self.animate()
@@ -221,9 +235,9 @@ class Character:
 
 
     def get_state_attack(self):
-        
+
         on_ground = not self.falling
-        
+
         if self.attack2 and on_ground:
             self.chosen_attack = "ground_special"
 
@@ -234,7 +248,13 @@ class Character:
             self.chosen_attack = "air_special"
 
         else:
+            self.chosen_attack = "ground_quick"
+
+        """
+        else:
             self.chosen_attack = "air_quick"
+        """
+        
 
         if not self.was_attacking:
             if self.left:
@@ -363,7 +383,7 @@ class Character:
                     self.vx *= DESACCELERATION
             
             #JUMPING
-        if self.up and self.jumps_left > 0 and self.jump_cooldown == 0 and len_vec(self.vx, self.vy) < LAUNCHED:
+        if self.up and self.jumps_left > 0 and self.jump_cooldown == 0 and len_vec(self.vx, self.vy) < LAUNCHED and not self.attacking:
             self.launched = False
             self.vy =- JUMP_ACCELERATION
             self.falling = True
@@ -375,7 +395,16 @@ class Character:
         elif self.attacking and not self.launched:
             self.vx *= self.attack_desacellaretations[self.anim_n_attack()]
 
-        self.vy += GRAVITY
+        if not self.grabbed:
+            if self.attacking:
+                if self.attack_gravity[self.anim_n_attack()]:
+                    self.vy += GRAVITY
+                elif self.was_attacking:
+                    self.vy = 0
+                else:
+                    self.vy += GRAVITY
+            else:
+                self.vy += GRAVITY
 
         #LIMITS
         if not self.launched:
@@ -392,7 +421,7 @@ class Character:
     def collision(self, platforms):
         self.falling = True
         for plat in platforms:
-            if self.rect.colliderect(plat):
+            if self.rect.colliderect(plat) and not self.grabbed:
                 side = rectangle_collision(self.rect, plat, math.floor(self.vx), math.floor(self.vy), 0, 0)
                 if self.launched:
                     if side == 1 or side == 3:
@@ -426,18 +455,81 @@ class Character:
                     rect = rect.move(att_offset[0] + (self.attack_frame_width - 2*rect.x)*(self.facing_left), att_offset[1])
                     #print(rect, player.rect)
                     if rect.colliderect(player.rect) and not player.attacked:
+
+                        if self.is_grab[n_att]:
+                            player.grabbed = True
+
+                        self.vx, self.vy = self.vx + self.knockback_self[n_att][0]*((not self.facing_left)*2 - 1), self.vy + self.knockback_self[self.anim_n_attack()][1]
                         player.is_attacked(self.attack_damages[n_att], self.knockback_effects[n_att], self.facing_left)
+
+                if player.grabbed:
+                    rect = self.attack_grabs[n_att][n_frame][0]
+                    player.rect.x , player.rect.y = rect.x + att_offset[0] + (self.attack_frame_width - 2*rect.x)*(self.facing_left), rect.y + att_offset[1]
 
 
     def is_attacked(self, dam, knockback, direc):
-        print("hit")
         self.damage += dam
         self.attacked = True
         self.attacking = False
         self.vx += int(knockback[0]*(self.damage/KNOCK_BACK_SCALE))*((not direc)*2 - 1)
-        self.vy += int(knockback[1]*(self.damage/KNOCK_BACK_SCALE))*((not direc)*2 - 1)
+        self.vy += int(knockback[1]*(self.damage/KNOCK_BACK_SCALE))
         if len_vec(self.vx, self.vy) > LAUNCHED:
             self.launched = True
+
+
+    def check_dead(self):
+        #left / right / bottom
+        if self.rect.x + self.rect.width <= 0 or self.rect.x > RENDER_RES[0] or self.rect.y > RENDER_RES[1]:
+            self.lives -= 1
+            if self.lives > 0:
+                self.reset()
+            else:
+                self.rect.x = 10000
+                self.rect.y = 10000
+                self.dead = True
+
+
+    def reset(self):
+        self.vx = 0
+        self.vy = 0
+        self.rect = pygame.Rect(self.spawn_x, self.spawn_y, self.w, self.h)
+        self.jumps_left = N_JUMPS
+        self.jump_cooldown = 0
+        
+        #damage meter
+        self.damage = 0
+
+        #Current animation
+        self.facing_left = True
+        self.prev_anim = "none"
+        self.anim = "none"
+
+        self.anim_attack = "ground_special"
+
+        self.frame_t = 0
+        self.current_frame = 0
+
+        self.att_frame_t = 0
+        self.att_current_frame = 0
+        
+        self.invicible_frames = 0
+
+        #States
+        self.grabbed = False
+        self.landing = False
+        self.was_attacking = False
+        self.attacking = False
+        self.attacked = False
+        self.launched = False
+        self.falling = True
+
+        #Inputs
+        self.left = False
+        self.right = False
+        self.up = False
+        self.down = False
+        self.attack1 = False
+        self.attack2 = False
 
 
     def move(self, platforms):
@@ -447,11 +539,27 @@ class Character:
         self.collision(platforms)
 
 
+    def check_win(self):
+        other_alive = False
+        for player in self.players:
+            if not player.dead and player != self:
+                other_alive = True
+        return  not other_alive
+
+
     def update(self, platforms, players):
         self.players = players
-        self.read_inputs()
-        self.move(platforms)
-        self.animate()
+        if self.check_win():
+            self.frame_t += 1
+            self.prev_anim = "victory_dance"
+            self.anim = "victory_dance"
+            self.get_frame_mvmt()
+        else:
+            if not self.dead:
+                self.read_inputs()
+                self.move(platforms)
+                self.animate()
+                self.check_dead()
 
 
     def draw(self):
