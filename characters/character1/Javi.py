@@ -69,18 +69,19 @@ class Javi(Character):
 
         attack_damage = [50, 15, 40, 0]
 
-        knockback_effect = [(10, 2), (2, -25), (-20, -15), (0, 0)]
+        knockback_effect = [(10, 2), (2, -10), (-20, -15), (0, 0)]
 
         #This is the frame where is you hold the attack it will charge and not finish immidiatly(comme in a pair with the max time you can charge it for)
         holding_frame = [(1, 90), (0, 0), (0, 0), (0, 0)]
 
         attack_desacellaretation = [0.9, 1, 1, 0]
 
-        knockback_self = [(0, 0), (0, 0), (0, -30), (0, 0)]
+        knockback_self = [(0, 0), (0, 0), (0, -50), (0, 0)]
 
         attack_gravity = [1, 1, 0, 1]
+        attack_cooldown = 20
 
-        return [rects_attack, attack_time, attack_damage, knockback_effect, holding_frame, attack_desacellaretation, knockback_self, attack_gravity, grab_hitboxes]
+        return [rects_attack, attack_time, attack_damage, knockback_effect, holding_frame, attack_desacellaretation, knockback_self, attack_gravity, grab_hitboxes, attack_cooldown]
 '''
 
     def load_art(self):

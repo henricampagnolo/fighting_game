@@ -21,10 +21,11 @@ class Character:
         self.jump_cooldown = 0
         self.lives = N_LIVES
         
-        #damage meter
+        #damage meter and hearts
         self.damage = 0
         self.health_bars = Spritemap(surface, pygame.image.load("assets\health_bars.png").convert_alpha(), 192, 96)
-        
+        self.hearts = Spritemap(surface, pygame.image.load("assets\hearts.png").convert_alpha(), 96, 96)
+
         #Sprite_sheets
         self.mvmt_sprites = mvmtsprites
         self.attack_sprites = attacksprites
@@ -39,6 +40,8 @@ class Character:
 
         #Current animation
         self.facing_left = True
+        if self.controls == 1:
+            self.facing_left = False
         self.prev_anim = "none"
         self.anim = "none"
 
@@ -53,6 +56,7 @@ class Character:
         self.invicible_frames = 0
 
         #States
+        self.win = False
         self.dead = False
         self.grabbed = False
         self.landing = False
@@ -81,6 +85,9 @@ class Character:
         self.knockback_self = self.attackinfo[6]
         self.attack_gravity = self.attackinfo[7]
         self.attack_grabs = self.attackinfo[8]
+        self.attack_cooldown = self.attackinfo[9]
+
+        self.current_cooldown = 0
 
         self.is_grab = [len(i)> 0 for i in self.attack_grabs]
         
@@ -193,12 +200,15 @@ class Character:
         if self.att_frame_t > self.attack_times[self.anim_n_attack()][self.att_current_frame] + (self.attack_hold[self.anim_n_attack()][0] == self.att_current_frame and self.chosen_attack == self.anim_attack)*self.attack_hold[self.anim_n_attack()][1]:
             self.att_frame_t = 0
             self.att_current_frame += 1
+            
+            #stop attack
             if self.att_current_frame >= self.attack_sprites_steps[self.anim_n_attack()]:
                 for player in self.players:
                     if player != self and player.grabbed:
                         player.grabbed = False
                 self.attacking = False
                 self.att_current_frame = 0
+                self.current_cooldown = self.attack_cooldown
                 self.animate()
 
 
@@ -346,6 +356,9 @@ class Character:
     def change_velocity(self):
         
         self.was_attacking = self.attacking
+
+        if self.current_cooldown > 0:
+            self.current_cooldown -= 1
         
         if self.launched and not self.falling:
             self.vx *= LAUNCHED_SPEED_LOSS_GROUND
@@ -363,7 +376,7 @@ class Character:
             self.invicible_frames = 0
             self.attacked = False
 
-        if ((self.attack1 or self.attack2) and not self.attacking) and not self.launched:
+        if ((self.attack1 or self.attack2) and not self.attacking) and not self.launched and self.current_cooldown == 0:
             self.attacking = True
 
         if not self.attacking and not self.launched:
@@ -459,15 +472,19 @@ class Character:
                         if self.is_grab[n_att]:
                             player.grabbed = True
 
-                        self.vx, self.vy = self.vx + self.knockback_self[n_att][0]*((not self.facing_left)*2 - 1), self.vy + self.knockback_self[self.anim_n_attack()][1]
+                        #self.vx, self.vy = self.vx + self.knockback_self[n_att][0]*((not self.facing_left)*2 - 1), self.vy + self.knockback_self[self.anim_n_attack()][1]
                         player.is_attacked(self.attack_damages[n_att], self.knockback_effects[n_att], self.facing_left)
 
                 if player.grabbed:
                     rect = self.attack_grabs[n_att][n_frame][0]
-                    player.rect.x , player.rect.y = rect.x + att_offset[0] + (self.attack_frame_width - 2*rect.x)*(self.facing_left), rect.y + att_offset[1]
+                    player.rect.x , player.rect.y = rect.x + att_offset[0] + (self.attack_frame_width - 2*rect.x - rect.width)*(self.facing_left), rect.y + att_offset[1]
 
 
     def is_attacked(self, dam, knockback, direc):
+        self.att_frame_t = 0
+        self.frame_t = 0
+        self.att_current_frame = 0
+        self.current_frame = 0
         self.damage += dam
         self.attacked = True
         self.attacking = False
@@ -550,6 +567,10 @@ class Character:
     def update(self, platforms, players):
         self.players = players
         if self.check_win():
+            self.attacking = False
+            if not self.win:
+                self.frame_t = 0
+            self.win = True
             self.frame_t += 1
             self.prev_anim = "victory_dance"
             self.anim = "victory_dance"
@@ -573,16 +594,22 @@ class Character:
     def draw_health(self, resized_screen):
         prop = resized_screen.get_width()/self.surface.get_width()
         frame = pygame.transform.scale_by(self.health_bars.get_frame(0, min(DC_BARS, math.floor(self.damage/DC_BAR_VAL)), False), prop)
+        frame_hearts = pygame.transform.scale_by(self.hearts.get_frame(0, N_LIVES - self.lives, (self.controls == 2)), prop)
         fw = frame.get_width()
         fh = frame.get_width()
+        hfw = frame_hearts.get_width()
         sw = resized_screen.get_width()
         sh = resized_screen.get_height()
         border = DC_BORDER * prop
         if self.controls == 1:
             resized_screen.blit(frame, (border, border))
+            resized_screen.blit(frame_hearts, (border + fw, border))
         if self.controls == 2:
             resized_screen.blit(frame, (sw - fw - border, border))
+            resized_screen.blit(frame_hearts, (sw - fw - hfw - border, border))
         if self.controls == 3:
             resized_screen.blit(frame, (border, sh - fh - border))
+            resized_screen.blit(frame_hearts, (border + fw, sh - fh - border))
         if self.controls == 4:
             resized_screen.blit(frame, (sw - fw -  border, sh - fh - border))
+            resized_screen.blit(frame_hearts, (sw - fw - hfw - border, sh - fh - border))
