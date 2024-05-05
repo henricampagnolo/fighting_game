@@ -7,6 +7,7 @@ FPS = 60
 #Player
 PLAYER_SIZE = (96, 144)
 N_LIVES = 3
+RESPAWN_TIME = 90
 
 #JAVI
 RUNNING_ANIM_START = 1 #min speed before animation
@@ -42,7 +43,7 @@ TERMINAL_VELOCITY = 30
 JUMP_ACCELERATION = 25 #higher is stronger
 JUMP_CONTROL = 1
 ACCELERATION = 0.4 #higher is faster
-DESACCELERATION = 0.90 #lower is stronger
+DESACCELERATION = 0.84 #lower is stronger
 MAXSPEED = 10 
 MINSPEED = 0.1
 

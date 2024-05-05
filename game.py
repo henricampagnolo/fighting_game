@@ -26,10 +26,27 @@ class FightingFoo:
 
         self.font = pygame.font.SysFont("Arial" , 20 , bold = True)
 
+        self.title_screen_img = pygame.image.load("assets\\title_screen.png").convert_alpha()
+
         self.player1 = Javi(self.render_surf, x = 300, y = 200, controls=1)
         self.player2 = Javi(self.render_surf, x = 1500, y = 200, controls=2)
         
         self.players = [self.player1, self.player2]
+
+
+    def title_screen(self):
+        key = pygame.key.get_pressed()
+        while not key[pygame.K_RETURN]:
+            key = pygame.key.get_pressed()
+            self.handle_input()
+
+            self.render_surf.blit(self.title_screen_img, (0,0))
+
+            sw = self.screen.get_width()
+            sh = self.screen.get_height()
+
+            pygame.transform.scale(self.render_surf, (sw, sh), dest_surface=self.screen)
+            pygame.display.flip()
 
 
     def main_loop(self):

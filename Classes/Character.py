@@ -54,8 +54,10 @@ class Character:
         self.att_current_frame = 0
         
         self.invicible_frames = 0
+        self.respawn_timer = 0
 
         #States
+        self.respawning = False
         self.win = False
         self.dead = False
         self.grabbed = False
@@ -507,6 +509,9 @@ class Character:
 
 
     def reset(self):
+        self.respawning = True
+        self.respawn_timer = RESPAWN_TIME
+
         self.vx = 0
         self.vy = 0
         self.rect = pygame.Rect(self.spawn_x, self.spawn_y, self.w, self.h)
@@ -566,29 +571,35 @@ class Character:
 
     def update(self, platforms, players):
         self.players = players
-        if self.check_win():
-            self.attacking = False
-            if not self.win:
-                self.frame_t = 0
-            self.win = True
-            self.frame_t += 1
-            self.prev_anim = "victory_dance"
-            self.anim = "victory_dance"
-            self.get_frame_mvmt()
+        if self.respawning:
+            self.respawn_timer -= 1
+            if self.respawn_timer == 0:
+                self.respawning = False
         else:
-            if not self.dead:
-                self.read_inputs()
-                self.move(platforms)
-                self.animate()
-                self.check_dead()
+            if self.check_win():
+                self.attacking = False
+                if not self.win:
+                    self.frame_t = 0
+                self.win = True
+                self.frame_t += 1
+                self.prev_anim = "victory_dance"
+                self.anim = "victory_dance"
+                self.get_frame_mvmt()
+            else:
+                if not self.dead:
+                    self.read_inputs()
+                    self.move(platforms)
+                    self.animate()
+                    self.check_dead()
 
 
     def draw(self):
-        if self.attacking:
-            #self.surface.blit(self.attack_sprites.get_frame(0, 0, self.facing_left), (1000, 1000))
-            self.surface.blit(self.attack_sprites.get_frame(self.att_current_frame, self.anim_n_attack(), self.facing_left), (self.rect.x - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][0][self.facing_left], self.rect.y - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][1]))
-        else:
-            self.surface.blit(self.mvmt_sprites.get_frame(self.current_frame, self.anim_n_mvmt(), self.facing_left), (self.rect.x - self.mvmt_offset[0], self.rect.y - self.mvmt_offset[1]))
+        if not self.respawning:
+            if self.attacking:
+                #self.surface.blit(self.attack_sprites.get_frame(0, 0, self.facing_left), (1000, 1000))
+                self.surface.blit(self.attack_sprites.get_frame(self.att_current_frame, self.anim_n_attack(), self.facing_left), (self.rect.x - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][0][self.facing_left], self.rect.y - self.attack_offsets[self.anim_n_attack()][self.att_current_frame][1]))
+            else:
+                self.surface.blit(self.mvmt_sprites.get_frame(self.current_frame, self.anim_n_mvmt(), self.facing_left), (self.rect.x - self.mvmt_offset[0], self.rect.y - self.mvmt_offset[1]))
     
 
     def draw_health(self, resized_screen):
