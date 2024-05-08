@@ -35,29 +35,33 @@ def rectangle_collision(rect1: pygame.Rect, rect2: pygame.Rect, vx1, vy1, vx2, v
         #print("T n", i, "is", t)
         if t >= 0 and t < 1: ts.append([t, i])
     
-    if len(ts) == 2 and ts[0][0] > ts[1][0]:
-        i = ts[0][1]
-        side_pos = ts[0][0]*v1s[i%2] + sides_r1[i] - v1s[i%2]
+    if len(ts) != 0:
+        if len(ts) == 2 and ts[0][0] > ts[1][0]:
+            i = ts[0][1]
+            side_pos = ts[0][0]*v1s[i%2] + sides_r1[i] - v1s[i%2]
+        else:
+            i = ts[-1][1]
+            side_pos = ts[-1][0]*v1s[i%2] + sides_r1[i] - v1s[i%2]
+        
+        #print("side pos", side_pos)
+        #print(" ")
+        match i:
+            case 0:
+                rect1.left = side_pos
+                rect2.right = side_pos
+            case 1:
+                rect1.top = side_pos
+                rect2.bottom = side_pos
+            case 2:
+                rect1.right = side_pos
+                rect2.left = side_pos
+            case 3:
+                rect1.bottom = side_pos
+                rect2.top = side_pos
+        return i
     else:
-        i = ts[-1][1]
-        side_pos = ts[-1][0]*v1s[i%2] + sides_r1[i] - v1s[i%2]
-    
-    #print("side pos", side_pos)
-    #print(" ")
-    match i:
-        case 0:
-            rect1.left = side_pos
-            rect2.right = side_pos
-        case 1:
-            rect1.top = side_pos
-            rect2.bottom = side_pos
-        case 2:
-            rect1.right = side_pos
-            rect2.left = side_pos
-        case 3:
-            rect1.bottom = side_pos
-            rect2.top = side_pos
-    return i
+        rect1.bottom = rect2.top
+        return 1
 
 def len_vec(x, y):
     return math.sqrt(x**2 + y**2)

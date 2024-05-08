@@ -91,7 +91,7 @@ class Character:
 
         self.current_cooldown = 0
 
-        self.is_grab = [len(i)> 0 for i in self.attack_grabs]
+        self.is_grab = [len(i)>0 for i in self.attack_grabs]
         
         self.attack_frame_width = self.attack_sprites.frame_width
         self.attack_frame_height = self.attack_sprites.frame_height
@@ -467,7 +467,7 @@ class Character:
             if player != self:
                 #print("new_attack")
                 for rect in self.attack_rects[n_att][n_frame][1]:
-                    rect = rect.move(att_offset[0] + (self.attack_frame_width - 2*rect.x)*(self.facing_left), att_offset[1])
+                    rect = rect.move(att_offset[0] + (self.attack_frame_width - 2*rect.x - rect.width)*(self.facing_left), att_offset[1])
                     #print(rect, player.rect)
                     if rect.colliderect(player.rect) and not player.attacked:
 

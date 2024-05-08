@@ -15,10 +15,10 @@ fpsClock = pygame.time.Clock()
 coords = [i*144 for i in range(10)]
 start = 0
 
-width, height = 144*6, 144*6
+width, height = 240*6, 360*6
 screen = pygame.display.set_mode((width, height))
 
-sprite_sheet = pygame.image.load("characters\character1\javi_sprites.png").convert_alpha()
+sprite_sheet = pygame.image.load("assets\javi_magicien.png").convert_alpha()
  
 # Game loop.
 while True:
@@ -30,7 +30,7 @@ while True:
             sys.exit()
     
     # Update.
-    frame = pygame.transform.flip(pygame.transform.scale_by(sprite_sheet.subsurface((coords[start], 288, width/6, height/6)), 6), 1, 0)
+    frame = pygame.transform.flip(pygame.transform.scale_by(sprite_sheet.subsurface((coords[start], 600, width/6, height/6)), 6), 1, 0)
 
     # Draw.
     screen.blit(frame, (0, 0))
